@@ -1,1 +1,17 @@
 analytical/target
+
+# direnv
+.bin/
+.cache/
+.config/
+.data/
+.run/
+.local/
+
+# nix
+/result
+
+# nixago: ignore-linked-files
+/.prettierrc
+/lefthook.yml
+/treefmt.toml
