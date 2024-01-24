@@ -8,6 +8,13 @@ in
 {
   lefthook = {
     data = {
+      commit-msg = {
+        commands = {
+          conform = {
+            run = "${nixpkgs.conform}/bin/conform enforce --commit-msg-file {1}";
+          };
+        };
+      };
       pre-commit = {
         commands = {
           treefmt = {
@@ -16,6 +23,42 @@ in
           clippy = {
             run = "cd analytical && ${inputs.cells.rust.toolchain.rust}/bin/cargo clippy";
           };
+        };
+      };
+    };
+  };
+
+  conform = {
+    data = {
+      commit = {
+        header = {
+          length = 89;
+          imperative = true;
+          case = "upper";
+          invalidLastCharacters = ".,!?";
+        };
+        body = {
+          required = true;
+        };
+        dco = true;
+        spellcheck = {
+          locale = "US";
+        };
+        conventional = {
+          types = [
+            "build"
+            "chore"
+            "ci"
+            "docs"
+            "feat"
+            "fix"
+            "perf"
+            "refactor"
+            "style"
+            "test"
+            "wip"
+          ];
+          descriptionLength = 72;
         };
       };
     };

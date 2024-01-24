@@ -39,4 +39,9 @@
         devShells = std.harvest inputs.self [ [ "_automation" "devshells" ] ];
         checks = std.harvest inputs.self [ [ "analytical" "checks" ] ];
       };
+
+  nixConfig = {
+    extra-substituters = [ "https://yuiyukihira.cachix.org" ];
+    extra-trusted-public-keys = [ "yuiyukihira.cachix.org-1:TuN52rUDSZIRJLC1zbD7a53Z/sv4pZIDt/b55LuzEJ4=" ];
+  };
 }

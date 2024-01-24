@@ -12,9 +12,9 @@ in
 with args; rec {
   analytical-deps = crane.buildDepsOnly commonArgs;
 
-  default = analytical;
+  default = analytical-bin;
 
-  analytical = crane.buildPackage (commonArgs // {
+  analytical-bin = crane.buildPackage (commonArgs // {
     cargoExtraArgs = "--bin analytical-bin";
 
     cargoArtifacts = analytical-deps;

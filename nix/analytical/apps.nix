@@ -8,8 +8,10 @@ in
 {
   default = inputs.flake-utils.lib.mkApp {
     drv = cell.packages.default;
+    name = "analytical-bin";
   };
   analytical = inputs.flake-utils.lib.mkApp {
-    drv = cell.packages.analytical;
+    drv = cell.packages.analytical-bin;
+    name = "analytical-bin";
   };
 }

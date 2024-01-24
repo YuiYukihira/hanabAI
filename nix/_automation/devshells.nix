@@ -7,7 +7,7 @@ let
 in
 l.mapAttrs (_: std.lib.dev.mkShell) {
   default = { extraModulesDir, ... }: {
-    name = "oghma devshell";
+    name = "hanabAI devshell";
 
     imports = [
       std.std.devshellProfiles.default
@@ -21,6 +21,9 @@ l.mapAttrs (_: std.lib.dev.mkShell) {
         category = "releases";
         help = "A tool to make creating semantic version easier";
       }
+      {
+        package = nixpkgs.cachix;
+      }
     ];
 
     language.rust = {
@@ -31,6 +34,7 @@ l.mapAttrs (_: std.lib.dev.mkShell) {
       ((std.lib.dev.mkNixago std.lib.cfg.lefthook) cell.configs.lefthook)
       (std.lib.dev.mkNixago cell.configs.prettier)
       ((std.lib.dev.mkNixago std.lib.cfg.treefmt) cell.configs.treefmt)
+      ((std.lib.dev.mkNixago std.lib.cfg.conform) cell.configs.conform)
     ];
   };
 }
