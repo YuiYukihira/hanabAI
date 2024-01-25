@@ -382,3 +382,17 @@ impl Thought for EarlyGameThought {
         Poll::Finished(None)
     }
 }
+
+pub struct DiscardThought {}
+impl Thought for DiscardThought {
+    fn poll<const P: usize, const H: usize>(&mut self, game_state: &GameState<P, H>) -> Poll {
+        let chop = game_state.player_hand.get_chop();
+
+        // TODO: TBH this should be a lot better, we're only handling it like this
+        // becuase we're discarding as the *last possible* action that could happen.
+        Poll::Pending(Some(Action::Discard(match chop {
+            Some((id, _)) => id,
+            None => game_state.player_hand[0].0,
+        })))
+    }
+}

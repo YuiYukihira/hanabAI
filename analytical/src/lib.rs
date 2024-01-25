@@ -5,11 +5,15 @@
 // Thought gen 2: Determine why clue was played
 // Thought gen 3: Determine responses
 
-use std::{collections::HashMap, fmt::Write};
+use std::{
+    collections::HashMap,
+    fmt::Write,
+    ops::{Deref, Index},
+};
 
 use level1::{
-    FinesseThought, FinessedThought, FiveSaveThought, FiveStallThought, PlayThought, PromptThought,
-    PromptedThought, SaveThought, TwoSaveThought,
+    DiscardThought, EarlyGameThought, FinesseThought, FinessedThought, FiveSaveThought,
+    FiveStallThought, PlayThought, PromptThought, PromptedThought, SaveThought, TwoSaveThought,
 };
 use priority_queue::PriorityQueue;
 
@@ -21,6 +25,14 @@ pub struct Brain {
 }
 
 impl Brain {
+    pub fn new() -> Self {
+        let mut queue = PriorityQueue::new();
+
+        queue.push(ThoughtType::EarlyGame(EarlyGameThought {}), 10);
+
+        Self { thoughts: queue }
+    }
+
     pub fn play<const P: usize, const H: usize>(&mut self, game_state: &GameState<P, H>) -> Action {
         let mut thoughts_to_requeue = Vec::new();
         let action_to_return;
@@ -43,15 +55,17 @@ impl Brain {
         }
         for thought in thoughts_to_requeue.into_iter().rev() {
             let priority = match thought {
-                ThoughtType::Prompt(_) => 3,
-                ThoughtType::Prompted(_) => 3,
+                ThoughtType::Prompt(_) => 20,
+                ThoughtType::Prompted(_) => 20,
                 ThoughtType::Finesse(_) => 10,
                 ThoughtType::Finessed(_) => 10,
-                ThoughtType::Play(_) => 1,
-                ThoughtType::FiveSave(_) => 0,
-                ThoughtType::TwoSave(_) => 0,
-                ThoughtType::Save(_) => 0,
-                ThoughtType::FiveStall(_) => 0,
+                ThoughtType::Play(_) => 5,
+                ThoughtType::FiveSave(_) => 6,
+                ThoughtType::TwoSave(_) => 6,
+                ThoughtType::Save(_) => 9,
+                ThoughtType::FiveStall(_) => 1,
+                ThoughtType::EarlyGame(_) => 5,
+                ThoughtType::Discard(_) => 0,
             };
             self.thoughts.push_front(thought, priority);
         }
@@ -79,6 +93,8 @@ pub enum ThoughtType {
     TwoSave(TwoSaveThought),
     Save(SaveThought),
     FiveStall(FiveStallThought),
+    EarlyGame(EarlyGameThought),
+    Discard(DiscardThought),
 }
 
 impl Thought for ThoughtType {
@@ -93,13 +109,15 @@ impl Thought for ThoughtType {
             ThoughtType::TwoSave(t) => t.poll(game_state),
             ThoughtType::Save(t) => t.poll(game_state),
             ThoughtType::FiveStall(t) => t.poll(game_state),
+            ThoughtType::EarlyGame(t) => t.poll(game_state),
+            ThoughtType::Discard(t) => t.poll(game_state),
         }
     }
 }
 
 pub struct GameState<const P: usize, const H: usize> {
     team_hands: [TeammateHand<H>; P],
-    player_hand: [(CardId, ColorFlags, NumberFlags, bool); H],
+    player_hand: PlayerHand<H>,
     discarded: Vec<(CardId, Color, usize)>,
     played: HashMap<Color, Vec<(CardId, usize)>>,
     hint_count: usize,
@@ -599,4 +617,42 @@ pub enum Focus {
     Chop(CardId, usize),
     NewCard(CardId, usize),
     LeftMost(CardId, usize),
+}
+
+pub struct PlayerHand<const H: usize>([(CardId, ColorFlags, NumberFlags, bool); H]);
+impl<const H: usize> Index<usize> for PlayerHand<H> {
+    type Output = (CardId, ColorFlags, NumberFlags, bool);
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+impl<const H: usize> Deref for PlayerHand<H> {
+    type Target = [(CardId, ColorFlags, NumberFlags, bool); H];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<const H: usize> PlayerHand<H> {
+    pub fn get_chop(&self) -> Option<(CardId, PlayerCard)> {
+        self.0
+            .iter()
+            .copied()
+            .enumerate()
+            .filter(|(_, (_, _, _, touched))| !touched)
+            .min_by_key(|(index, _)| *index)
+            .map(|(index, (id, color, number, touched))| {
+                (
+                    id,
+                    PlayerCard {
+                        color,
+                        number,
+                        touched,
+                        index,
+                    },
+                )
+            })
+    }
 }
