@@ -5,6 +5,7 @@
       url = "github:divnix/std";
       inputs.devshell.url = "github:numtide/devshell";
       inputs.nixago.url = "github:nix-community/nixago";
+      inputs.n2c.url = "github:nlewo/nix2container";
     };
     semver = {
       url = "sourcehut:~yuiyukihira/semver";
@@ -17,6 +18,7 @@
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    n2c.follows = "std/n2c";
   };
 
   outputs = { std, ... }@inputs:
@@ -31,6 +33,7 @@
           (std.blockTypes.nixago "configs")
           (std.blockTypes.functions "toolchain")
           (std.blockTypes.functions "args")
+          (std.blockTypes.containers "containers")
         ];
       }
       {

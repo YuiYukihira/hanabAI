@@ -98,4 +98,16 @@ in
       nixpkgs.nodePackages.prettier
     ];
   };
+
+  fly = {
+    data = {
+      app = "hanabAI";
+      primary_region = "lhr";
+
+      build = {
+        image = "lucyekatarina/analytical-bin:${inputs.cells.analytical.args.crateName.version}";
+      };
+    };
+    output = "fly.toml";
+  };
 }
