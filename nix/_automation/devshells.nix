@@ -2,14 +2,16 @@
 let
   inherit (inputs) nixpkgs std;
   l = nixpkgs.lib // builtins;
-in l.mapAttrs (_: std.lib.dev.mkShell) {
+in
+l.mapAttrs (_: std.lib.dev.mkShell) {
   default = { extraModulesDir, ... }: {
     name = "hanabAI devshell";
 
     imports = [
       std.std.devshellProfiles.default
-      inputs.helpers.nixosModules.base
-      inputs.helpers.nixosModules."language/rust"
+      inputs.helpers.devshellProfiles.base
+      inputs.helpers.devshellProfiles.language.rust
+      cell.devshellProfiles.analytical
     ];
 
     commands = [
@@ -31,6 +33,18 @@ in l.mapAttrs (_: std.lib.dev.mkShell) {
     ];
 
     language.rust = { packageSet = inputs.cells.rust.toolchain.rust; };
+
+    services.analytical = {
+      enable = true;
+      password = "devPassword";
+      tls = false;
+      port = "30000";
+      package = nixpkgs.writeShellScriptBin "analytical-bin" ''
+        nix run .#analytical
+      '';
+      logging = "debug";
+    };
+    services.hanabi-live.enable = true;
 
     nixago = [
       ((std.lib.dev.mkNixago std.lib.cfg.lefthook) cell.configs.lefthook)
