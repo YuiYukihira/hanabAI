@@ -5,6 +5,7 @@
       url = "github:divnix/std";
       inputs.devshell.url = "github:numtide/devshell";
       inputs.nixago.url = "github:nix-community/nixago";
+      inputs.n2c.url = "github:nlewo/nix2container";
     };
     semver = {
       url = "sourcehut:~yuiyukihira/semver";
@@ -17,6 +18,8 @@
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    n2c.follows = "std/n2c";
+    hanabi-live.url = "github:YuiYukihira/hanabi-live";
   };
 
   outputs = { std, ... }@inputs:
@@ -31,6 +34,8 @@
           (std.blockTypes.nixago "configs")
           (std.blockTypes.functions "toolchain")
           (std.blockTypes.functions "args")
+          (std.blockTypes.containers "containers")
+          (std.blockTypes.functions "devshellProfiles")
         ];
       }
       {
@@ -38,10 +43,14 @@
         apps = std.harvest inputs.self [ [ "analytical" "apps" ] ];
         devShells = std.harvest inputs.self [ [ "_automation" "devshells" ] ];
         checks = std.harvest inputs.self [ [ "analytical" "checks" ] ];
+        devshellProfiles =
+          std.harvest inputs.self [ [ "_automation" "devshellProfiles" ] ];
       };
 
   nixConfig = {
     extra-substituters = [ "https://yuiyukihira.cachix.org" ];
-    extra-trusted-public-keys = [ "yuiyukihira.cachix.org-1:TuN52rUDSZIRJLC1zbD7a53Z/sv4pZIDt/b55LuzEJ4=" ];
+    extra-trusted-public-keys = [
+      "yuiyukihira.cachix.org-1:TuN52rUDSZIRJLC1zbD7a53Z/sv4pZIDt/b55LuzEJ4="
+    ];
   };
 }

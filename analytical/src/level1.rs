@@ -14,29 +14,29 @@ impl Thought for PromptThought {
             .collect();
         let _hinted = self.hinted.resolve(game_state);
 
-        println!("I think a prompt is happening...");
+        log::info!("I think a prompt is happening...");
         print!("Have all the prompted cards been played? ");
         if finessed
             .iter()
             .all(|c| matches!(c.typ, CardType::Played(_, _)))
         {
-            println!("Yes!");
-            println!("Therefore I should complete the line!");
+            log::info!("Yes!");
+            log::info!("Therefore I should complete the line!");
             return Poll::Finished(Some(Action::Play(self.hinted)));
         }
-        println!("No!");
-        println!("Were any of the prompted card dicarded? ");
+        log::info!("No!");
+        log::info!("Were any of the prompted card dicarded? ");
         if finessed
             .iter()
             .any(|c| matches!(c.typ, CardType::Discarded(_, _)))
         {
-            println!("Yes!");
-            println!("Therefore the line is broken, and I should stop thinking about this...");
+            log::info!("Yes!");
+            log::info!("Therefore the line is broken, and I should stop thinking about this...");
             return Poll::Finished(None);
         }
 
-        println!("No!");
-        println!("The line is still playing out, and I should wait for it");
+        log::info!("No!");
+        log::info!("The line is still playing out, and I should wait for it");
         Poll::Pending(None)
     }
 }
@@ -49,8 +49,8 @@ pub struct PromptedThought {
 impl Thought for PromptedThought {
     fn poll<const P: usize, const H: usize>(&mut self, game_state: &GameState<P, H>) -> Poll {
         let card = self.prompted.resolve(game_state);
-        println!("I think I am being prompted with a {}...", card);
-        println!("I should play that card!");
+        log::info!("I think I am being prompted with a {}...", card);
+        log::info!("I should play that card!");
         Poll::Finished(Some(Action::Play(self.prompted)))
     }
 }
@@ -69,29 +69,29 @@ impl Thought for FinesseThought {
             .collect();
         let _hinted = self.hinted.resolve(game_state);
 
-        println!("I think a finesse is happening...");
+        log::info!("I think a finesse is happening...");
         print!("Have all the finessed cards been played? ");
         if finessed
             .iter()
             .all(|c| matches!(c.typ, CardType::Played(_, _)))
         {
-            println!("Yes!");
-            println!("Therefore I should complete the line!");
+            log::info!("Yes!");
+            log::info!("Therefore I should complete the line!");
             return Poll::Finished(Some(Action::Play(self.hinted)));
         }
-        println!("No!");
-        println!("Were any of the finessed card dicarded? ");
+        log::info!("No!");
+        log::info!("Were any of the finessed card dicarded? ");
         if finessed
             .iter()
             .any(|c| matches!(c.typ, CardType::Discarded(_, _)))
         {
-            println!("Yes!");
-            println!("Therefore the line is broken, and I should stop thinking about this...");
+            log::info!("Yes!");
+            log::info!("Therefore the line is broken, and I should stop thinking about this...");
             return Poll::Finished(None);
         }
 
-        println!("No!");
-        println!("The line is still playing out, and I should wait for it");
+        log::info!("No!");
+        log::info!("The line is still playing out, and I should wait for it");
         Poll::Pending(None)
     }
 }
@@ -103,8 +103,8 @@ pub struct FinessedThought {
 impl Thought for FinessedThought {
     fn poll<const P: usize, const H: usize>(&mut self, game_state: &GameState<P, H>) -> Poll {
         let card = self.card.resolve(game_state);
-        println!("I think I am being finessed with a {}...", card);
-        println!("I should play that card!");
+        log::info!("I think I am being finessed with a {}...", card);
+        log::info!("I should play that card!");
         Poll::Finished(Some(Action::Play(self.card)))
     }
 }
@@ -117,12 +117,12 @@ pub struct PlayThought {
 impl Thought for PlayThought {
     fn poll<const P: usize, const H: usize>(&mut self, game_state: &GameState<P, H>) -> Poll {
         let _card = self.card.resolve(game_state);
-        println!(
+        log::info!(
             "I was clued that this card was playable on turn {} ({} turns ago)...",
             self.turn,
             game_state.turn_counter - self.turn
         );
-        println!("I will trust that is is playable!");
+        log::info!("I will trust that is is playable!");
         Poll::Finished(Some(Action::Play(self.card)))
     }
 }
@@ -137,16 +137,16 @@ impl Thought for FiveSaveThought {
         game_state: &GameState<P, H>,
     ) -> crate::Poll {
         let card = self.card.resolve(game_state);
-        println!(
+        log::info!(
             "I'm wondering if my five card is playable? I think it's a: {}",
             card
         );
         if card.is_playable(game_state) {
-            println!("It is! I should play that then");
+            log::info!("It is! I should play that then");
             return Poll::Finished(Some(Action::Play(self.card)));
         }
 
-        println!("It's not...I should wait then");
+        log::info!("It's not...I should wait then");
         Poll::Pending(None)
     }
 }
@@ -161,16 +161,16 @@ impl Thought for TwoSaveThought {
         game_state: &GameState<P, H>,
     ) -> crate::Poll {
         let card = self.card.resolve(game_state);
-        println!(
+        log::info!(
             "I'm wondering if my two card is playable? I think it's a: {}",
             card
         );
         if card.is_playable(game_state) {
-            println!("It is! I should play that then");
+            log::info!("It is! I should play that then");
             return Poll::Finished(Some(Action::Play(self.card)));
         }
 
-        println!("It's not...I should wait then");
+        log::info!("It's not...I should wait then");
         Poll::Pending(None)
     }
 }
@@ -185,16 +185,16 @@ impl Thought for SaveThought {
         game_state: &GameState<P, H>,
     ) -> crate::Poll {
         let card = self.card.resolve(game_state);
-        println!(
+        log::info!(
             "I'm wondering if my saved card is playable? I think it's a: {}",
             card
         );
         if card.is_playable(game_state) {
-            println!("It is! I should play that then");
+            log::info!("It is! I should play that then");
             return Poll::Finished(Some(Action::Play(self.card)));
         }
 
-        println!("It's not...I should wait then");
+        log::info!("It's not...I should wait then");
         Poll::Pending(None)
     }
 }
@@ -209,16 +209,16 @@ impl Thought for FiveStallThought {
         game_state: &GameState<P, H>,
     ) -> crate::Poll {
         let card = self.card.resolve(game_state);
-        println!(
+        log::info!(
             "I'm wondering if my stalled 5 card is playable? I think it's a: {}",
             card
         );
         if card.is_playable(game_state) {
-            println!("It is! I should play that then");
+            log::info!("It is! I should play that then");
             return Poll::Finished(Some(Action::Play(self.card)));
         }
 
-        println!("It's not...I should wait then");
+        log::info!("It's not...I should wait then");
         Poll::Pending(None)
     }
 }
@@ -233,12 +233,12 @@ impl Thought for EarlyGameThought {
 
         let playable_cards = game_state.playable_cards_in_teammate_hands();
         for (id, card) in playable_cards {
-            println!(
+            log::info!(
                 "I've noticed that one of player {}'s carss is playable!",
                 card.player
             );
             if card.touched {
-                println!("However, it's already been touched, so they probably know about it...");
+                log::info!("However, it's already been touched, so they probably know about it...");
                 continue;
             }
 
@@ -258,12 +258,12 @@ impl Thought for EarlyGameThought {
                     crate::Focus::LeftMost(id, _) => id,
                 };
                 if focus_id != id {
-                    println!("I can't hint while focusing that card, so I can't hint it...");
+                    log::info!("I can't hint while focusing that card, so I can't hint it...");
                     continue;
                 }
             }
 
-            println!("And it's not been touched, let's hint it!");
+            log::info!("And it's not been touched, let's hint it!");
             return Poll::Pending(Some(Action::Hint(card.player, hint)));
         }
 
@@ -271,12 +271,12 @@ impl Thought for EarlyGameThought {
         // Is there a critical card instead?
         let critical_cards = game_state.critical_cards_in_teammate_hands();
         for (id, card) in critical_cards {
-            println!(
+            log::info!(
                 "I've noticed that one of player {}'s cards is critical!",
                 card.player
             );
             if card.touched {
-                println!("However, it's already been touched, so they probably know about it...");
+                log::info!("However, it's already been touched, so they probably know about it...");
                 continue;
             }
 
@@ -296,7 +296,7 @@ impl Thought for EarlyGameThought {
                     crate::Focus::LeftMost(id, _) => id,
                 };
                 if focus_id != id {
-                    println!("I can't hint while focusing that card, so I can't hint it...");
+                    log::info!("I can't hint while focusing that card, so I can't hint it...");
                     // TODO: With a better playing algo, we should check if this player has a playable card instead
                     // Because of the above check for playable cards, the only instance we'll miss a card is if it's both playable
                     // and critical and we can't properly hint it.
@@ -306,7 +306,7 @@ impl Thought for EarlyGameThought {
                 }
             }
 
-            println!("And it's not been touched, let's hint it!");
+            log::info!("And it's not been touched, let's hint it!");
             return Poll::Pending(Some(Action::Hint(card.player, hint)));
         }
 
@@ -334,7 +334,7 @@ impl Thought for EarlyGameThought {
             .filter(|(_, _, _, _, touched, _)| !touched);
 
         for card in twos_on_chops {
-            println!(
+            log::info!(
                 "Player {} has a 2 on the chop, I should probably try and save it...",
                 card.0
             );
@@ -345,7 +345,7 @@ impl Thought for EarlyGameThought {
                 crate::Focus::LeftMost(id, _) => id,
             };
             if focus_id != card.1 {
-                println!("I can't hint while focusing that card, so I can't hint it...");
+                log::info!("I can't hint while focusing that card, so I can't hint it...");
                 continue;
             }
 

@@ -15,7 +15,7 @@ with args; rec {
   default = analytical-bin;
 
   analytical-bin = crane.buildPackage (commonArgs // {
-    cargoExtraArgs = "--bin analytical-bin";
+    cargoExtraArgs = "--bin analytical-bin --features='tungstenite,color-eyre,pretty_env_logger,serde_json,serde,reqwest'";
 
     cargoArtifacts = analytical-deps;
   });
